@@ -1,8 +1,8 @@
 from proxmoxer import ProxmoxAPI
 from dotenv import load_dotenv
 import os
+import json
 
-# Загружаем переменные окружения из файла .env
 load_dotenv()
 
 # Получаем значения переменных
@@ -11,6 +11,11 @@ proxmox_user = os.getenv('PROXMOX_USER')
 token_name = os.getenv('PROXMOX_TOKEN_NAME')
 token_value = os.getenv('PROXMOX_TOKEN_VALUE')
 
+
+def load_servers_config(json_file):
+    with open(json_file, 'r') as f:
+        return json.load(f)
+    
 
 class ProxMox():
     def __init__(self, proxmox_host, user=proxmox_user, token_name=token_name, token_value=token_value, verify_ssl=False):
@@ -143,7 +148,17 @@ class ProxMox():
 
 
 if __name__ == '__main__':
-    pve = ProxMox(proxmox_host=proxmox_host, user=proxmox_user, token_name=token_name, token_value=token_value)
-    pve.get_node_vms()
+    servers = load_servers_config('servers.json')
+
+    server_names = [server['name'] for server in servers['servers']]
+    print(f'{server_names=}')
+
+    for server in servers['servers']:
+        print(f"Host: {server['host']}, Token Name: {server['token_name']}")
+        pve = ProxMox(proxmox_host=server['host'], user=server['user'], token_name=server['token_name'], token_value=server['token_value'])
+        pve.get_node_vms()
+    
+    # pve = ProxMox(proxmox_host=proxmox_host, user=proxmox_user, token_name=token_name, token_value=token_value)
+    # pve.get_node_vms()
     # pve.stop_vm('pve2', 226)
     
