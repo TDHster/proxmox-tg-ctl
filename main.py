@@ -18,7 +18,7 @@ proxmox = ProxmoxAPI(proxmox_host, user=proxmox_user, token_name=token_name, tok
 nodes = proxmox.nodes.get()
 
 print(f'\nHost: {proxmox_host}')
-# Выводим информацию о каждом узле и его виртуальных машинах
+
 for node in nodes:
     node_name = node['node']
     node_status = node['status']
@@ -34,21 +34,42 @@ for node in nodes:
             vm_id = vm['vmid']
             vm_name = vm.get('name', 'No Name')  # Имя может отсутствовать
             vm_status = vm['status']
-            print(f"    VM ID: {vm_id}, {vm_status}, {vm_name} ")
-            
-            # vm_id_for_reboot = 226
-            # if vm_id == vm_id_for_reboot:
-            #     print(f"\n    Restarting VM {vm_id_for_reboot}...")
-            #     proxmox.nodes(node_name).qemu(vm_id).status.reboot.post()
-            #     print(f"    VM {vm_id_for_reboot} has been restarted.")
 
+            # Получаем статус конкретной виртуальной машины
+            vm_status_info = proxmox.nodes(node_name).qemu(vm_id).status.current.get()
+
+            # Извлекаем аптайм
+            uptime_seconds = vm_status_info.get('uptime', 0)
+
+            # Переводим секунды в годы, месяцы, дни, часы, минуты
+            years = uptime_seconds // (365 * 24 * 3600)
+            months = (uptime_seconds % (365 * 24 * 3600)) // (30 * 24 * 3600)
+            days = (uptime_seconds % (30 * 24 * 3600)) // (24 * 3600)
+            hours = (uptime_seconds % (24 * 3600)) // 3600
+            minutes = (uptime_seconds % 3600) // 60
+
+            # Формируем строку аптайма
+            uptime_str = []
+            if years > 0:
+                uptime_str.append(f"{years} years")
+            if months > 0:
+                uptime_str.append(f"{months} months")
+            if days > 0:
+                uptime_str.append(f"{days} days")
+            if hours > 0:
+                uptime_str.append(f"{hours} hours")
+            if minutes > 0:
+                uptime_str.append(f"{minutes} minutes")
+                
+            uptime_string = ', '.join(uptime_str)
+
+            print(f"    VM ID: {vm_id}, {vm_status}, {vm_name} ", end='')
+            print(f", Uptime: {uptime_string}") if uptime_string else None
+            
     else:
         print("  No VMs found on this node.")
-        
-        
-node_name = "pve2"  # Имя вашего узла
-vm_id = 226  # ID виртуальной машины
 
+        
 #-------------
     
 # # Получаем список завершённых задач на узле
@@ -65,38 +86,21 @@ vm_id = 226  # ID виртуальной машины
 
 #-------------
 
-# Получаем список всех задач на узле
-tasks = proxmox.nodes(node_name).tasks.get()
 
-# Фильтруем задачи по ID виртуальной машины
-vm_tasks = [task for task in tasks if str(vm_id) in task['id']]
+def get_proxmox_logs_for(node_name, vm_id):
+    # Получаем список всех задач на узле
+    tasks = proxmox.nodes(node_name).tasks.get()
 
-# Выводим логи для каждой задачи
-for task in vm_tasks:
-    task_id = task['upid']
-    task_logs = proxmox.nodes(node_name).tasks(task_id).log.get()
+    # Фильтруем задачи по ID виртуальной машины
+    vm_tasks = [task for task in tasks if str(vm_id) in task['id']]
 
-    print(f"\nLogs for task {task_id} (VM ID: {vm_id}):")
-    for log_entry in task_logs:
-        print(log_entry['t'], log_entry['n'])  # t - время записи, n - сообщение лога
-        
-  
-#-------------
-      
-# # Получаем список всех задач, выполненных на узле
-# tasks = proxmox.nodes(node_name).tasks.get()
+    # Выводим логи для каждой задачи
+    for task in vm_tasks:
+        task_id = task['upid']
+        task_logs = proxmox.nodes(node_name).tasks(task_id).log.get()
 
-# # Выводим задачи и логи каждой задачи
-# for task in tasks:
-#     task_id = task['upid']
-#     task_type = task['type']
-#     task_status = task['status']
-#     task_start_time = task['starttime']
+        print(f"\nLogs for task {task_id} (VM ID: {vm_id}):")
+        for log_entry in task_logs:
+            print(log_entry['t'], log_entry['n'])  # t - время записи, n - сообщение лога
 
-#     print(f"\nTask ID: {task_id}, Type: {task_type}, Status: {task_status}, Start Time: {task_start_time}")
-    
-#     # Получаем логи задачи
-#     task_logs = proxmox.nodes(node_name).tasks(task_id).log.get()
-#     for log_entry in task_logs:
-#         print(log_entry['t'], log_entry['n'])  # t - время записи, n - сообщение лога
 
