@@ -15,8 +15,9 @@ token_value = os.getenv('PROXMOX_TOKEN_VALUE')
 class ProxMox():
     def __init__(self, proxmox_host, user=proxmox_user, token_name=token_name, token_value=token_value, verify_ssl=False):
         self.proxmox_host = ProxmoxAPI(proxmox_host, user=user, token_name=token_name, token_value=token_value, verify_ssl=verify_ssl)
+        self.nodes_resources = {}
     
-    def get_vms(self):
+    def get_node_vms(self):
         nodes = self.proxmox_host.nodes.get()
         print(f'\nHost: {proxmox_host}')
 
@@ -61,6 +62,12 @@ class ProxMox():
                     
                 print(f'  Free CPUs on {node_name}: {node_maxcpu-node_using_cpus} of {node_maxcpu} total.')
                 print(f'  Free memory on {node_name}: {int((node_maxmem-node_using_memory)/1024/1024/1024)}G of {int(node_maxmem/1024/1024/1024)}G total')
+                self.nodes_resources[node_name] = {}
+                self.nodes_resources[node_name]['maxCPU'] = node_maxcpu
+                self.nodes_resources[node_name]['maxmem'] = node_maxmem
+                self.nodes_resources[node_name]['usingCPU'] = node_using_cpus
+                self.nodes_resources[node_name]['usingmem'] = node_using_memory
+                # print(self.nodes_resources)
             else:
                 print("  No VMs found on this node.")
            
@@ -120,9 +127,23 @@ class ProxMox():
                 print(log_entry['t'], log_entry['n'])  # t - время записи, n - сообщение лога
 
 
+    def shutdown_vm(self, node_name, vm_id):
+        print(f"    Restarting VM {vm_id} on {node_name}...")
+        self.proxmox_host.nodes(node_name).qemu(vm_id).status.shutdown.post()
+        
+    def start_vm(self, node_name, vm_id):
+        self.proxmox_host.nodes(node_name).qemu(vm_id).status.start.post()
+
+    def stop_vm(self, node_name, vm_id):
+        self.proxmox_host.nodes(node_name).qemu(vm_id).status.stop.post()
+
+    def reboot_vm(self, node_name, vm_id):
+        # self.proxmox_host.nodes(node_name).qemu(vm_id).status.restart.post()  # not implemented
+        self.proxmox_host.nodes(node_name).qemu(vm_id).status.reboot.post()
 
 
 if __name__ == '__main__':
     pve = ProxMox(proxmox_host=proxmox_host, user=proxmox_user, token_name=token_name, token_value=token_value)
-    pve.get_vms()
+    pve.get_node_vms()
+    # pve.stop_vm('pve2', 226)
     
