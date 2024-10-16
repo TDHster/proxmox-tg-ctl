@@ -1,63 +1,72 @@
 import logging
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram import Router
 from aiogram import F
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.session.aiohttp import AiohttpSession
+from proxmox import load_servers_config
 import os
 from dotenv import load_dotenv
 
+# Загрузка переменных окружения
 load_dotenv()
 
 API_TOKEN = os.getenv('BOT_TOKEN')
 
-
 # Включаем логирование
 logging.basicConfig(level=logging.INFO)
 
-# Укажите ваш токен бота
-ALLOWED_USER_ID = 104887251  # ID разрешенного пользователя
+# Укажите ID разрешенного пользователя
+ALLOWED_USER_ID = 104887251  # Замените на нужный ID
 
 # Создаем объекты для работы с ботом
 bot = Bot(token=API_TOKEN, session=AiohttpSession())
 dp = Dispatcher(storage=MemoryStorage())
 router = Router()
 
-# Инлайн-кнопки
+# Инлайн-кнопки с динамическим созданием из конфигурации серверов
 async def get_inline_keyboard() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
-    keyboard.button(text="Команда 1", callback_data="command_1")
-    keyboard.button(text="Команда 2", callback_data="command_2")
-    keyboard.button(text="Команда 3", callback_data="command_3")
+    
+    # Загружаем список серверов из конфигурации
+    servers = load_servers_config()
+
+    # Создаем кнопки для каждого сервера
+    for server in servers['servers']:
+        logging.info(f"Создание кнопки для сервера: {server['name']}, callback_data='pve_{server['name']}'")
+        keyboard.button(text=server['name'], callback_data=f"pve_{server['name']}")  # Генерируем уникальный callback_data для каждого сервера
+    
     return keyboard.as_markup()
 
 # Обработчик команды /start с проверкой ID пользователя
 @router.message(Command("start"))
 async def send_welcome(message: types.Message):
     if message.from_user.id == ALLOWED_USER_ID:
-        await message.answer("Добро пожаловать! Выберите команду:", reply_markup=await get_inline_keyboard())
+        await message.answer("Добро пожаловать! Выберите сервер:", reply_markup=await get_inline_keyboard())
     else:
         await message.answer("У вас нет доступа к этому боту.")
 
-# Обработка нажатий на инлайн-кнопки
-@router.callback_query(F.data.in_({"command_1", "command_2", "command_3"}))
-async def process_callback_button(callback_query: types.CallbackQuery):
+# Обработка нажатий на инлайн-кнопки (колбэки серверов)
+@router.callback_query(F.data.startswith("pve_"))  # Фильтрация колбэков, начинающихся с "pve_"
+async def process_server_callback(callback_query: types.CallbackQuery):
+    # logging.info(f"Получен callback_data: {callback_query.data}")  # Логируем данные колбэка
+
     if callback_query.from_user.id != ALLOWED_USER_ID:
         await callback_query.answer("У вас нет доступа к этой команде!", show_alert=True)
         return
 
-    if callback_query.data == "command_1":
-        await callback_query.message.answer("Вы выбрали Команду 1!")
-    elif callback_query.data == "command_2":
-        await callback_query.message.answer("Вы выбрали Команду 2!")
-    elif callback_query.data == "command_3":
-        await callback_query.message.answer("Вы выбрали Команду 3!")
+    # Извлекаем название сервера из callback_data
+    server_name = callback_query.data[4:]  # Убираем префикс "pve_"
 
-    await callback_query.answer()
+    # Получаем ID чата из callback_query.message и отправляем сообщение явно через bot.send_message
+    chat_id = callback_query.message.chat.id
 
+    await bot.send_message(chat_id, f"Вы выбрали сервер: {server_name}")
+
+    await callback_query.answer()  # Это закрывает уведомление о колбэке
 
 # Регистрация роутеров
 dp.include_router(router)
