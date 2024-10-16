@@ -1,30 +1,21 @@
 from proxmoxer import ProxmoxAPI
-from dotenv import load_dotenv
-import os
+
 import json
 
-load_dotenv()
 
-# Получаем значения переменных
-proxmox_host = os.getenv('PROXMOX_HOST')
-proxmox_user = os.getenv('PROXMOX_USER')
-token_name = os.getenv('PROXMOX_TOKEN_NAME')
-token_value = os.getenv('PROXMOX_TOKEN_VALUE')
-
-
-def load_servers_config(json_file):
+def load_servers_config(json_file='servers.json'):
     with open(json_file, 'r') as f:
         return json.load(f)
     
 
 class ProxMox():
-    def __init__(self, proxmox_host, user=proxmox_user, token_name=token_name, token_value=token_value, verify_ssl=False):
+    def __init__(self, proxmox_host, user, token_name, token_value, verify_ssl=False):
         self.proxmox_host = ProxmoxAPI(proxmox_host, user=user, token_name=token_name, token_value=token_value, verify_ssl=verify_ssl)
         self.nodes_resources = {}
     
     def get_node_vms(self):
         nodes = self.proxmox_host.nodes.get()
-        print(f'\nHost: {proxmox_host}')
+        print(f'\nHost: {self.proxmox_host}')
 
         for node in nodes:
             node_using_cpus = 0
@@ -148,7 +139,7 @@ class ProxMox():
 
 
 if __name__ == '__main__':
-    servers = load_servers_config('servers.json')
+    servers = load_servers_config()
 
     server_names = [server['name'] for server in servers['servers']]
     print(f'{server_names=}')
