@@ -8,9 +8,9 @@ def load_servers_config(json_file='servers.json'):
         return json.load(f)
     
     
-def get_server_by_name(servers, server_name):
+def get_server_by_name(servers, pve_node_name):
     for server in servers['servers']:
-        if server['name'] == server_name:
+        if server['name'] == pve_node_name:
             return server
     return None  # Вернуть None, если сервер с таким именем не найден
 
@@ -24,7 +24,12 @@ class ProxMox():
         # Инициализируем словарь для хранения информации о нодах и виртуальных машинах
         node_vm_dict = {}
 
-        nodes = self.proxmox_host.nodes.get()
+        try:
+            nodes = self.proxmox_host.nodes.get()
+        except Exception as e:
+            print(e)
+            return None
+        
         print(f'\nHost: {self.proxmox_host}')
 
         for node in nodes:
@@ -34,7 +39,11 @@ class ProxMox():
             print(f"\n  Node: {node_name}, {node_status}.")
             
             # Получаем список виртуальных машин на данном узле
-            vms = self.proxmox_host.nodes(node_name).qemu.get()
+            try:
+                vms = self.proxmox_host.nodes(node_name).qemu.get()
+            except Exception as e:
+                print(e)
+                return None
             
             # Инициализируем словарь для хранения информации о VM для каждой ноды
             node_vm_dict[node_name] = {}
