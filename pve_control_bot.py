@@ -144,12 +144,16 @@ async def process_vmid_callback(callback_query: types.CallbackQuery):
         case 'start':
             pve = ProxMox(proxmox_host=pve_server_config['host'], user=pve_server_config['user'], token_name=pve_server_config['token_name'], token_value=pve_server_config['token_value'])
             # pve.get_node_vms()
-            pve.start_vm(pve_node_name, vm_id=vm_id)
+            result = pve.start_vm(pve_node_name, vm_id=vm_id)
             await callback_query.answer(f"Команда в {pve_node_name} отправлена")
+            if result != True:
+                await bot.send_message(chat_id, f"Ошибка: {result}")  
         case 'stop':
             pve = ProxMox(proxmox_host=pve_server_config['host'], user=pve_server_config['user'], token_name=pve_server_config['token_name'], token_value=pve_server_config['token_value'])
-            pve.stop_vm(pve_node_name, vm_id=vm_id)
+            result = pve.stop_vm(pve_node_name, vm_id=vm_id)
             await callback_query.answer(f"Команда в {pve_node_name} отправлена")
+            if result != True:
+                await bot.send_message(chat_id, f"Ошибка: {result}")  
         case 'reboot':
             pve = ProxMox(proxmox_host=pve_server_config['host'], user=pve_server_config['user'], token_name=pve_server_config['token_name'], token_value=pve_server_config['token_value'])
             result = pve.reboot_vm(pve_node_name, vm_id=vm_id)

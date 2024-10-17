@@ -136,13 +136,28 @@ class ProxMox():
 
     def shutdown_vm(self, node_name, vm_id):
         print(f"    Restarting VM {vm_id} on {node_name}...")
-        self.proxmox_host.nodes(node_name).qemu(vm_id).status.shutdown.post()
+        try:        
+            self.proxmox_host.nodes(node_name).qemu(vm_id).status.shutdown.post()
+        except Exception as e:
+            print(e)
+            return e
+        return True
         
     def start_vm(self, node_name, vm_id):
-        self.proxmox_host.nodes(node_name).qemu(vm_id).status.start.post()
+        try:
+            self.proxmox_host.nodes(node_name).qemu(vm_id).status.start.post()
+        except Exception as e:
+            print(e)
+            return e
+        return True
 
     def stop_vm(self, node_name, vm_id):
-        self.proxmox_host.nodes(node_name).qemu(vm_id).status.stop.post()
+        try:
+            self.proxmox_host.nodes(node_name).qemu(vm_id).status.stop.post()
+        except Exception as e:
+            print(e)
+            return e
+        return True
 
     def reboot_vm(self, node_name, vm_id):
         # self.proxmox_host.nodes(node_name).qemu(vm_id).status.restart.post()  # not implemented
