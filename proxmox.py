@@ -146,7 +146,12 @@ class ProxMox():
 
     def reboot_vm(self, node_name, vm_id):
         # self.proxmox_host.nodes(node_name).qemu(vm_id).status.restart.post()  # not implemented
-        self.proxmox_host.nodes(node_name).qemu(vm_id).status.reboot.post()
+        try:
+            self.proxmox_host.nodes(node_name).qemu(vm_id).status.reboot.post()
+        except Exception as e:
+            print(e)
+            return e
+        return True
 
 
 if __name__ == '__main__':

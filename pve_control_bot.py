@@ -123,10 +123,10 @@ async def process_vmid_callback(callback_query: types.CallbackQuery):
     action = callback_parts[3]       # Извлекаем action (start/stop/reboot)
 
     chat_id = callback_query.message.chat.id
-    await bot.send_message(chat_id, f"Выбрана VM: {vm_id} на хосте {pve_node_name} для действия: {action}")
+    await bot.send_message(chat_id, f"{vm_id} на хосте {pve_node_name} для действия: {action}")
 
     # Логируем или выводим информацию
-    await callback_query.answer(f"Выбрана VM: {vm_id} на хосте {pve_node_name} для действия: {action}")
+    # await callback_query.answer(f"Выбрана VM: {vm_id} на хосте {pve_node_name} для действия: {action}")
 
     # Здесь можно добавить логику для выполнения действия с VM, например:
     # if action == "start":
@@ -145,12 +145,19 @@ async def process_vmid_callback(callback_query: types.CallbackQuery):
             pve = ProxMox(proxmox_host=pve_server_config['host'], user=pve_server_config['user'], token_name=pve_server_config['token_name'], token_value=pve_server_config['token_value'])
             # pve.get_node_vms()
             pve.start_vm(pve_node_name, vm_id=vm_id)
+            await callback_query.answer(f"Команда в {pve_node_name} отправлена")
         case 'stop':
             pve = ProxMox(proxmox_host=pve_server_config['host'], user=pve_server_config['user'], token_name=pve_server_config['token_name'], token_value=pve_server_config['token_value'])
             pve.stop_vm(pve_node_name, vm_id=vm_id)
+            await callback_query.answer(f"Команда в {pve_node_name} отправлена")
         case 'reboot':
             pve = ProxMox(proxmox_host=pve_server_config['host'], user=pve_server_config['user'], token_name=pve_server_config['token_name'], token_value=pve_server_config['token_value'])
-            pve.reboot_vm(pve_node_name, vm_id=vm_id)
+            result = pve.reboot_vm(pve_node_name, vm_id=vm_id)
+            await callback_query.answer(f"Команда в {pve_node_name} отправлена")
+            if result != True:
+                await bot.send_message(chat_id, f"Ошибка: {result}")    
+        case _:
+            await callback_query.answer(f"Неизвестная команда, ничего не отправлено.")
 
 
     # Отвечаем на callback и закрываем уведомление
