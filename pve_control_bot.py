@@ -20,7 +20,9 @@ API_TOKEN = os.getenv('BOT_TOKEN')
 logging.basicConfig(level=logging.INFO)
 
 # Укажите ID разрешенного пользователя
-ALLOWED_USER_ID = 104887251  # TDHster
+# ALLOWED_USER_ID = 104887251  # TDHster
+# ALLOWED_USER_ID = 550548917  # Alex
+ALLOWED_USERS = [104887251, 550548917]  # TDHster, Alex
 
 # Создаем объекты для работы с ботом
 bot = Bot(token=API_TOKEN, session=AiohttpSession(), default=DefaultBotProperties(parse_mode='HTML'))
@@ -39,9 +41,14 @@ async def get_pves_inline_keyboard() -> InlineKeyboardMarkup:
 
 
 # Обработчик команды /start с проверкой ID пользователя
+@router.message(F.text == "Список PVE серверов")
 @router.message(Command("start"))
 async def send_welcome(message: types.Message):
-    if message.from_user.id == ALLOWED_USER_ID:
+    if message.from_user.id in ALLOWED_USERS:
+        kb = [
+            [types.KeyboardButton(text="Список PVE серверов")]        ]
+        keyboard = types.ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
+        await message.answer("VM PVE control", reply_markup=keyboard)        
         await message.answer("Выберите сервер:", reply_markup=await get_pves_inline_keyboard())
     else:
         await message.answer("У вас нет доступа к этому боту.")
