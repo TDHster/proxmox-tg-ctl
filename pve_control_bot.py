@@ -58,7 +58,7 @@ async def send_welcome(message: types.Message):
 async def process_pveserver_callback(callback_query: types.CallbackQuery):
     # logging.info(f"Получен callback_data: {callback_query.data}")  # Логируем данные колбэка
 
-    if callback_query.from_user.id != ALLOWED_USER_ID:
+    if callback_query.from_user.id not in ALLOWED_USERS:
         await callback_query.answer("У вас нет доступа к этой команде!", show_alert=True)
         return
 
