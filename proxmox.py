@@ -1,5 +1,4 @@
 from proxmoxer import ProxmoxAPI
-
 import json
 
 
@@ -50,11 +49,14 @@ class ProxMox():
 
             if vms:
                 for vm in vms:
+                    # print(f'{vm=}')
                     vm_id = vm['vmid']
                     vm_name = vm.get('name', 'No Name')  # Имя может отсутствовать
                     vm_status = vm['status']
                     vm_cpus = vm['cpus']
-                    vm_mem = vm['mem']
+                    vm_cpu_load = vm['cpu']
+                    vm_maxmem = vm['maxmem']
+                    vm_mem_usage = vm['mem']
 
                     # Получаем статус конкретной виртуальной машины для uptime
                     vm_status_info = self.proxmox_host.nodes(node_name).qemu(vm_id).status.current.get()
@@ -66,18 +68,19 @@ class ProxMox():
                         'name': vm_name,
                         'status': vm_status,
                         'cpus': vm_cpus,
-                        'mem': vm_mem,
-                        'uptime': uptime_string  # Добавляем uptime
+                        'cpu_load': vm_cpu_load,
+                        'mem': vm_maxmem,
+                        'mem_usage': vm_mem_usage,
+                        'uptime': uptime_string  
                     }
 
-                    print(f"    VM ID: {vm_id}, {vm_status}, {vm_cpus} CPUs, {int(vm_mem/1024/1024/1024)}G, {vm_name}, Uptime: {uptime_string}")
+                    print(f"    VM ID: {vm_id}, {vm_status}, {vm_cpus} CPUs, {int(vm_maxmem/1024/1024/1024)}G, {vm_name}, Uptime: {uptime_string}")
             else:
-                print("  No VMs found on this node.")
+                print("  No VMs found on this node. (Or access error)")
 
         # Возвращаем словарь с нодами и VMID, а также их параметрами
         return node_vm_dict
-
-           
+          
                 
     def get_proxmox_logs_for_vm(self, node_name, vm_id):
         # Получаем список всех задач на узле

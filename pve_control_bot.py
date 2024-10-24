@@ -42,7 +42,7 @@ async def get_pves_inline_keyboard() -> InlineKeyboardMarkup:
 @router.message(Command("start"))
 async def send_welcome(message: types.Message):
     if message.from_user.id == ALLOWED_USER_ID:
-        await message.answer("Добро пожаловать! Выберите сервер:", reply_markup=await get_pves_inline_keyboard())
+        await message.answer("Выберите сервер:", reply_markup=await get_pves_inline_keyboard())
     else:
         await message.answer("У вас нет доступа к этому боту.")
 
@@ -84,11 +84,12 @@ async def pveserver_selected(pve_server_name, chat_id):
     pve = ProxMox(proxmox_host=pve_server_config['host'], user=pve_server_config['user'], token_name=pve_server_config['token_name'], token_value=pve_server_config['token_value'])
     nodes = pve.get_node_vms()
     if not nodes:
-        await bot.send_message(chat_id, f"Something bad happens.")
+        await bot.send_message(chat_id, f"Error. Something bad in bot happens.")
+        return None
     for node_name, vms in nodes.items():
-        await bot.send_message(chat_id, f"Node: {node_name}")
+        await bot.send_message(chat_id, f"Node: <u><b>{node_name}</b></u>")
         for vm_id, vm_data in vms.items():
-            vm_mem = int( vm_data['mem']/1024/1024/1024 )
+            vm_memory = int( vm_data['mem']/1024/1024/1024 )
             # vm_status = vm_data['status'] 
             match vm_data['status']:
                 case 'stopped':
@@ -100,7 +101,7 @@ async def pveserver_selected(pve_server_name, chat_id):
             uptime = f"\nUptime: {vm_data['uptime']}" if vm_data['uptime'] else ''
             await bot.send_message(chat_id, 
                                    (f"VMID: {vm_id}, <b>{vm_data['name']}</b>, {vm_status}\n"
-                                    f"CPU: {vm_data['cpus']} Mem: {vm_mem}G"
+                                    f"CPU: {vm_data['cpus']}, {vm_data['cpu_load']*100:.1f}% Mem: {vm_memory}G"
                                     f"{uptime}"),
                                     reply_markup=await get_vmid_control_inline_keyboard(pve_server_config['name'], vm_id))
 
@@ -123,7 +124,7 @@ async def process_vmid_callback(callback_query: types.CallbackQuery):
     action = callback_parts[3]       # Извлекаем action (start/stop/reboot)
 
     chat_id = callback_query.message.chat.id
-    await bot.send_message(chat_id, f"{vm_id} на хосте {pve_node_name} для действия: {action}")
+    await bot.send_message(chat_id, f"VM {vm_id} на {pve_node_name} отправка команды: {action}")
 
     # Логируем или выводим информацию
     # await callback_query.answer(f"Выбрана VM: {vm_id} на хосте {pve_node_name} для действия: {action}")
