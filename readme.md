@@ -73,7 +73,6 @@ ALLOWED_USERS=111111,2222222
 ### 5. Run the Bot
 Run the bot:
 
-bash
 ```python pve_control_bot.py```
 Now the bot will be active and ready to manage your virtual machines.
 
