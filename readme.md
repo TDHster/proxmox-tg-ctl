@@ -42,7 +42,7 @@ In the Datacenter section:
 1. Create a user `startstop_vm_bot` in Datacenter/Permissions.
 2. Create a role `start_stop_vm_bot` with the permissions: `VM.Monitor`, `VM.Audit`, `VM.PowerMgmt`, `Sys.PowerMgmt`, `Sys.Audit` in Datacenter/Permissions/Roles.
 3. Create an API token for `start_stop_vm_bot` in Datacenter/Permissions/API Tokens.
-4. Assign the role to both the user and the token in Datacenter/Permissions.
+4. Assign the role to both the user and the token in Datacenter/Permissions for /.
 
 ### 3. Server Configuration
 
@@ -137,7 +137,7 @@ pip install -r requirements.txt
 1. Создайте пользователя startstop_vm_bot в Datacenter/Permissions user
 2. Создайте роль start_stop_vm_bot с правами: VM.Monitor, VM.Audit, VM.PowerMgmt, Sys.PowerMgmt, Sys.Audit в Datacenter/Permissions/Roles
 3. Создайте токен start_stop_vm_bot  в Datacenter/Permissions/API Tokens
-4. Добавьте права и пользователю и токену назначив созданную role в Datacenter/Permissions
+4. Добавьте права и пользователю и токену назначив созданную role в Datacenter/Permissions для /
 
 ### 3. Настройка конфигурации серверов
 Создайте файл servers.json, где будет храниться информация о ваших серверах Proxmox, например:
