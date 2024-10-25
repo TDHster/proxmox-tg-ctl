@@ -1,3 +1,4 @@
 proxmoxer
 python-dotenv
 requests
+aiogram
