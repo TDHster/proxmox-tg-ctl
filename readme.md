@@ -1,3 +1,6 @@
+scroll down for russian
+
+
 # Proxmox VM Control Bot
 
 This project is a Telegram bot designed to simplify the management of virtual machines (VMs) on Proxmox servers. Using this bot, you can manage your virtual machines by retrieving their status and performing actions such as starting, stopping, and rebooting directly through Telegram.
