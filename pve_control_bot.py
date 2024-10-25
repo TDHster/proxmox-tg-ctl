@@ -1,3 +1,4 @@
+#pve_control_bot.py
 import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.client.default import DefaultBotProperties
@@ -16,13 +17,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_TOKEN = os.getenv('BOT_TOKEN')
+allowed_users_str = os.getenv('ALLOWED_USERS')  # String like "11111111,22222222"
+if allowed_users_str:
+    ALLOWED_USERS = [int(user_id) for user_id in allowed_users_str.split(',')]
+else:
+    ALLOWED_USERS = []
 
 logging.basicConfig(level=logging.INFO)
-
-# Укажите ID разрешенного пользователя
-# ALLOWED_USER_ID = 104887251  # TDHster
-# ALLOWED_USER_ID = 550548917  # Alex
-ALLOWED_USERS = [104887251, 550548917]  # TDHster, Alex
 
 # Создаем объекты для работы с ботом
 bot = Bot(token=API_TOKEN, session=AiohttpSession(), default=DefaultBotProperties(parse_mode='HTML'))
