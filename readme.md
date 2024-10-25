@@ -32,7 +32,7 @@ Telegram-бот на базе библиотеки `aiogram`, который:
 ### 1. Установка зависимостей
 
 Установите необходимые библиотеки:
-```bash
+
 pip install -r requirements.txt
 
 ### 2. Создайте токен в pve, например через web интерфейс.
@@ -46,6 +46,7 @@ pip install -r requirements.txt
 Создайте файл servers.json, где будет храниться информация о ваших серверах Proxmox, например:
 
 (Есть файл пример servers_example.json, скопируйте его в servers.json и внесите изменения))
+'''json
 {
   "servers": [
     {
