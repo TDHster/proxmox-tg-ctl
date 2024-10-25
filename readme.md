@@ -1,5 +1,102 @@
 # Proxmox VM Control Bot
 
+This project is a Telegram bot designed to simplify the management of virtual machines (VMs) on Proxmox servers. Using this bot, you can manage your virtual machines by retrieving their status and performing actions such as starting, stopping, and rebooting directly through Telegram.
+
+## Key Features
+
+- Retrieve a list of all Proxmox servers and the virtual machines on each server.
+- Manage virtual machines: start, stop, reboot.
+- Retrieve the status of each virtual machine, including resource usage (CPU, memory), and uptime information.
+- Display Proxmox operation logs for each virtual machine.
+- Quickly access Proxmox nodes using an inline keyboard in Telegram.
+
+## Project Structure
+
+### 1. `proxmox.py`
+
+This module:
+- Connects to Proxmox servers via API.
+- Retrieves data on virtual machines, including their status, resource usage, and uptime.
+- Performs actions on virtual machines (start, stop, reboot).
+- Converts uptime data into a human-readable format.
+
+### 2. `pve_control_bot.py`
+
+A Telegram bot based on the `aiogram` library that:
+- Provides users with an interface to manage Proxmox servers via chat.
+- Handles commands and callbacks to retrieve information about VMs and manage them.
+- Uses an inline keyboard for quick selection of servers and virtual machines.
+
+## Getting Started
+
+### 1. Install dependencies
+
+Install the required libraries:
+
+```bash
+pip install -r requirements.txt
+### 2. Create a token in PVE (e.g., through the web interface)
+
+In the Datacenter section:
+1. Create a user `startstop_vm_bot` in Datacenter/Permissions.
+2. Create a role `start_stop_vm_bot` with the permissions: `VM.Monitor`, `VM.Audit`, `VM.PowerMgmt`, `Sys.PowerMgmt`, `Sys.Audit` in Datacenter/Permissions/Roles.
+3. Create an API token for `start_stop_vm_bot` in Datacenter/Permissions/API Tokens.
+4. Assign the role to both the user and the token in Datacenter/Permissions.
+
+### 3. Server Configuration
+
+Create a `servers.json` file where information about your Proxmox servers will be stored, for example:
+
+(A sample file `servers_example.json` is provided. Copy it to `servers.json` and make necessary changes.)
+
+```json
+{
+  "servers": [
+    {
+      "name": "Proxmox-1",
+      "host": "proxmox1.example.com",
+      "user": "root@pam",
+      "token_name": "api-token",
+      "token_value": "your-token-here"
+    }
+  ]
+}
+### 4. Environment Variables
+Create a .env file and add your bot token and the Telegram IDs of authorized users (which can be obtained through @myidbot):
+
+```env
+Копировать код
+BOT_TOKEN=your-telegram-bot-token
+ALLOWED_USERS=111111,2222222
+```
+### 5. Run the Bot
+Run the bot:
+
+bash
+```python pve_control_bot.py```
+Now the bot will be active and ready to manage your virtual machines.
+
+### 6. Usage
+Commands:
+/start — Initializes the bot and displays a list of Proxmox servers. You can also press the inline button "List PVE Servers" to view the servers.
+VM Management:
+After selecting a server, you will see a list of virtual machines on it, along with buttons to manage each VM (start, stop, reboot).
+
+Example of Bot Usage:
+You enter the command /start.
+Select a server from the list.
+Get a list of all VMs on the server with their statuses and metrics.
+Select a VM to manage and perform actions via inline buttons.
+Warning:
+The commands for rebooting, stopping, and starting a VM will be immediately sent to the server without additional warnings.
+
+
+
+
+# Russian language
+
+# Proxmox VM Control Bot
+
 Этот проект представляет собой Telegram-бот, который упрощает управление виртуальными машинами на серверах Proxmox. Используя этот бот, вы можете управлять своими виртуальными машинами (VM), получая информацию о статусе VM, а также выполняя такие действия, как запуск, остановка и перезагрузка прямо через Telegram.
 
 ## Основные возможности
