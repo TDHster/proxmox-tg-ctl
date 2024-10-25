@@ -1,0 +1,19 @@
+{
+    "servers": [
+      {
+        "name": "pve1",
+        "host": "pve1.alsion.su:8115",
+        "user": "bot@pam",
+        "token_name": "bot",
+        "token_value": "value_from_pve_after_created_token"
+      },
+      {
+        "name": "pve2",
+        "host": "pve2.alsion.su:8006",
+        "user": "bot@pam",
+        "token_name": "bot",
+        "token_value": "value_from_pve_after_created_token"
+      }
+    ]
+  }
+  
