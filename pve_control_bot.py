@@ -172,7 +172,6 @@ async def process_vmid_callback(callback_query: types.CallbackQuery):
             await callback_query.answer(f"Неизвестная команда, ничего не отправлено.")
 
 
-    # Отвечаем на callback и закрываем уведомление
     await callback_query.answer(f"Выполняю {action} на VM {vm_id} в {pve_node_name}.")
 
 
