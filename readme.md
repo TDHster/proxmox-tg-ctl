@@ -35,6 +35,7 @@ Install the required libraries:
 
 ```bash
 pip install -r requirements.txt
+```
 ### 2. Create a token in PVE (e.g., through the web interface)
 
 In the Datacenter section:
@@ -61,11 +62,11 @@ Create a `servers.json` file where information about your Proxmox servers will b
     }
   ]
 }
+```
 ### 4. Environment Variables
 Create a .env file and add your bot token and the Telegram IDs of authorized users (which can be obtained through @myidbot):
 
 ```env
-Копировать код
 BOT_TOKEN=your-telegram-bot-token
 ALLOWED_USERS=111111,2222222
 ```
