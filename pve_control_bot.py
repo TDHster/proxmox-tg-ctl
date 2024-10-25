@@ -22,6 +22,7 @@ if allowed_users_str:
     ALLOWED_USERS = [int(user_id) for user_id in allowed_users_str.split(',')]
 else:
     ALLOWED_USERS = []
+    raise ValueError('ALLOWED_USERS of this bot is empty')
 
 logging.basicConfig(level=logging.INFO)
 
